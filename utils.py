@@ -51,7 +51,7 @@ def build_matrices(m, n):
     return A, B, C
 
 
-def solve_sylvester(A: np.ndarray, B: np.ndarray, C: np.ndarray):
+def solve_sylvester_scipy(A: np.ndarray, B: np.ndarray, C: np.ndarray):
     """Solve the Sylvester equation AX - XB = C with scipy's function by modifying C in place."""
     # Warning, need [:, :] slicing to modify C in place
     # Warning 2, scipy's solve_sylvester function solves AX + XB = C, not AX - XB = C, put minus sign

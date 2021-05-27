@@ -4,7 +4,7 @@ from math import floor
 
 import numpy as np
 
-from utils import gemm, solve_sylvester
+from utils import gemm, solve_sylvester_scipy
 
 
 def split_matrix(M: np.ndarray):
@@ -41,7 +41,7 @@ def rtrgsyl(A: np.ndarray, B: np.ndarray, C: np.ndarray, blks: int):
     m, n = A.shape[0], B.shape[0]
     # If size if small enough, solve with standard algo
     if m <= blks and n <= blks:
-        solve_sylvester(A, B, C)
+        solve_sylvester_scipy(A, B, C)
     else:
         # Implementation note: slicing a numpy array A[a:b, c:d] returns a VIEW on the matrix, not a copy
         #                      modifying the view thus modifies the original matrix
