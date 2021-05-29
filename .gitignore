@@ -1,0 +1,12 @@
+
+
+# Pycharm
+.idea
+
+# Jupyter
+.ipynb_checkpoints
+
+# Python
+__pycache__
+
+
