@@ -6,7 +6,6 @@ from typing import Callable, Tuple
 import numpy as np
 from scipy.linalg import schur
 from scipy.linalg import solve_sylvester as sp_sylvester
-from scipy.linalg import solve_continuous_lyapunov as sp_lyapunov
 
 
 def solve_bartels_stewart(A: np.ndarray, B: np.ndarray, C: np.ndarray, fun: Callable, **args) -> Tuple[np.ndarray, float, float, float]:
@@ -66,12 +65,6 @@ def solve_sylvester_scipy(A: np.ndarray, B: np.ndarray, C: np.ndarray):
     # Warning, need [:, :] slicing to modify C in place
     # Warning 2, scipy's solve_sylvester function solves AX + XB = C, not AX - XB = C, put minus sign
     C[:, :] = sp_sylvester(A, -B, C)
-
-
-def solve_lyapunov_scipy(A: np.ndarray, C: np.ndarray):
-    """Solve the continuous Lyapunov equation AX + XA^T = C"""
-    # Warning: scipy solves AX + XA^T = C.
-    C[:, :] = sp_lyapunov()
 
 
 def solve_sylvester_linear(A: np.ndarray, B: np.ndarray, C: np.ndarray):

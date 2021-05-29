@@ -1,9 +1,9 @@
 
 
 import unittest
+
 from recursive import rtrgsyl
 from utils import solve_bartels_stewart, build_matrices, check_sol
-import numpy as np
 
 
 class TestRtrgsyl(unittest.TestCase):
