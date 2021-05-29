@@ -1,41 +1,125 @@
 """
 Utility functions to perform benchmarks.
 """
-
+import inspect
 import json
 from time import time
-from typing import List, Dict, Tuple, Callable, Iterable
+from typing import List, Dict, Tuple, Callable, Iterable, Any
 
 import numpy as np
 import pandas as pd
 
 from recursive import rtrgsyl
-from utils import check_sol, build_matrices, solve_sylvester_scipy
+from utils import check_sol, build_matrices, solve_sylvester_scipy, solve_bartels_stewart, solve_sylvester_linear
 
 
-def multiple_runs(solve_fun: Callable, n_runs: int, m: int, n: int, check_solution: bool = True, **args):
+def benchmark(solve_fun: Callable,
+              vary_param: Tuple[str, Iterable],
+              log_context: Dict[str, Any] = None,
+              check_solution: bool = True,
+              n_runs: int = 5,
+              bertel_stewart: bool = False,
+              **kwargs):
+    if log_context is None:
+        log_context = dict()
+
+    variable, values = vary_param
+    results = []
+    # If the variable that varies is for multiple_runs, it will automatically understand it,
+    # otherwise it passes the variable to solve_fun
+    for value in values:
+        print(f'{variable}={value}')
+        run_config = kwargs.copy()
+        run_config[variable] = value
+        if bertel_stewart:
+            times = multiple_runs_bertel_stewart(
+                solve_fun=solve_fun,
+                n_runs=n_runs,
+                check_solution=check_solution,
+                **run_config
+            )
+        else:
+            times = multiple_runs(
+                solve_fun=solve_fun,
+                n_runs=n_runs,
+                check_solution=check_solution,
+                **run_config
+            )
+        # Log computational time
+        run_config['time'] = times
+        # Additional log
+        run_config.update(log_context)
+        results.append(run_config)
+
+    return results
+
+
+def multiple_runs(solve_fun: Callable, n_runs: int, dim: Tuple[int, int], check_solution: bool = True, **kwargs):
     """Return computation times for multiple runs.
 
     :param solve_fun: function taking matrices (np.ndarray) A mxm, B nxn, C mxn and optional keyword arguments
     :param n_runs: number of replications
-    :param m: size of matrix A
-    :param n: size of matrix B
+    :param dim: dimension of matrices (m, n), m size of A, n size of B
     :param check_solution: whether to check solution after calling solve_fun
-    :param args: passed to solve_fun
+    :param kwargs: passed to solve_fun
     :return: list of solving times
     """
+    m, n = dim
     res = list(np.zeros(n_runs))
     for i in range(n_runs):
         A, B, C = build_matrices(m, n)
         X = C.copy()
         t = time()
-        solve_fun(A, B, X, **args)
+        solve_fun(A, B, X, **kwargs)
         t = time() - t
         res[i] = t
         if check_solution:
             assert check_sol(A, B, C, X)
 
     return res
+
+
+def multiple_runs_bertel_stewart(solve_fun: Callable,
+                                 n_runs: int,
+                                 dim: Tuple[int, int],
+                                 check_solution: bool = True, **kwargs):
+    """Return computation times for multiple runs, calling solve_bartels_stewart.
+
+    :param solve_fun: function taking matrices (np.ndarray) A mxm, B nxn, C mxn and optional keyword arguments
+    :param n_runs: number of replications
+    :param dim: dimension of matrices (m, n), m size of A, n size of B
+    :param check_solution: whether to check solution after calling solve_fun
+    :param kwargs: passed to solve_fun
+    :return: list tuples (time_schur, time_solve, time_back)
+    """
+    m, n = dim
+    res = []
+    for i in range(n_runs):
+        A, B, C = build_matrices(m, n)
+        r = solve_bartels_stewart(A, B, C, solve_fun, **kwargs)
+        res.append(r[1:])
+        if check_solution:
+            X = r[0]
+            assert check_sol(A, B, C, X)
+
+    return res
+
+
+def multiple_runs_schur(solve_fun: Callable, n_runs: int, m: int, n: int, check_solution: bool = True, **args):
+    """
+    Return computation times for multiple runs, using utils.solve to wrap solve_fun.
+    That is, first map to Schur form, solve with solve_fun, then map back.
+    """
+    res_schur = list(np.zeros(n_runs))
+    res_solve, res_back = res_schur.copy(), res_schur.copy()
+    for i in range(n_runs):
+        A, B, C = build_matrices(m, n)
+        X = C.copy()
+        _, res_schur[i], res_solve[i], res_back[i] = solve_bartels_stewart(A, B, C, solve_fun, **args)
+        if check_solution:
+            assert check_sol(A, B, C, X)
+
+    return res_schur, res_solve, res_back
 
 
 def vary_block_size(solve_fun: Callable,
@@ -47,10 +131,12 @@ def vary_block_size(solve_fun: Callable,
     res = []
     for e in grid:
         print(f'blks={e}', end=', ')
-        times = multiple_runs(solve_fun, n_runs, m, n, check_solution)
+        res_schur, res_solve, res_back = multiple_runs_schur(solve_fun, n_runs, m, n, check_solution, blks=e)
         res.append({
             'blk': e,
-            'time': times
+            'time_solve': res_solve,
+            'time_schur': res_schur,
+            'time_back': res_back
         })
 
     return res
@@ -135,34 +221,3 @@ MAP_BECHMARK_FUN_NAME = {
     vary_matrix_size: 'size',
     vary_block_size: 'blks'
 }
-
-
-def benchmark(benchmark_fun: Callable, solve_fun: Callable, grid: Iterable, n_runs: int, bargs=None, sargs=None):
-    """
-    Benchmark utility function, enabling easy logging. Wraps another benchmark function.
-
-    :param benchmark_fun: the function that performs benchmark
-    :param solve_fun: the solving function
-    :param grid: grid of values to benchmark
-    :param n_runs: number of repetitions
-    :param bargs: dic, arguments passed to the benchmark_function, will be stored in the log
-    :param sargs: dic, arguments passed to the solve_fun, will be stored in the log
-    """
-    if bargs is None:
-        bargs = dict()
-    if sargs is None:
-        sargs = dict()
-
-    print('Perform benchmark on {} using algorithm {}'
-          .format(MAP_BECHMARK_FUN_NAME[benchmark_fun], MAP_SOLVE_FUN_NAME[solve_fun]))
-    print('args:', ', '.join(f'{k}={v}' for k, v in bargs.items()))
-
-    res = benchmark_fun(solve_fun=solve_fun, grid=grid, n_runs=n_runs, **bargs, **sargs)
-    # Log additional arguments
-    for dic in res:
-        dic.update(bargs)
-        dic.update(sargs)
-        dic['algorithm'] = MAP_SOLVE_FUN_NAME[solve_fun]
-        dic['benchmark'] = MAP_BECHMARK_FUN_NAME[benchmark_fun]
-
-    return res

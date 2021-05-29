@@ -7,7 +7,8 @@ from utils import solve_sylvester_scipy, build_matrices
 
 parser = argparse.ArgumentParser()
 parser.add_argument('algorithm', choices=['rtrgsyl', 'scipy'], help='choose algorithm')
-parser.add_argument('benchmark', choices=['size', 'blks'], help='choose element to vary')
+# TODO benchmark time decomposition
+parser.add_argument('benchmark', choices=['size', 'blks', 'timedecomp'], help='choose element to vary')
 parser.add_argument('-b', help='block size if size varies', type=int, default=50)
 parser.add_argument('-s', help='matrix size if blks varies', type=int, default=1000)
 parser.add_argument('-r', '--runs', help='number of runs', type=int, default=5)
@@ -48,10 +49,11 @@ elif args.benchmark == 'blks':
     # Set big matrix size
     m, n = 1000, 1000
     blks = [10, 20, 50, 100, 200, 300, 500]
-    res = benchmark(benchmark_fun=vary_block_size,
-                    solve_fun=solve_fun,
-                    grid=blks,
-                    n_runs=args.runs,
-                    m=m,
-                    n=n)
+    res = vary_block_size(
+        solve_fun=rtrgsyl,
+        grid=blks,
+        m=m,
+        n=n,
+        n_runs=args.runs
+    )
 

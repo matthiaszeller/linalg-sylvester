@@ -4,33 +4,35 @@ import numpy as np
 from scipy.linalg import schur
 from typing import Tuple, Callable
 from recursive import rtrgsyl
+from utils import build_matrices, solve_bartels_stewart, check_sol, solve_sylvester_linear
 
-import argparse
+m, n = 1000, 1000
+blks = 20
 
-from utils import build_matrices, solve
+mx = build_matrices(m, n)
+A, B, C = mx
 
-DEFAULT_M = 100
-DEFAULT_N = 100
-DEFAULT_BLKS = 30
+print(f'Created random matrices with shapes:\n{", ".join(str(M.shape) for M in mx)}')
+
+print('Solving Sylvester equation with Bartels Stewart and rtrgsyl ...')
+
+X, t_schur, t_solve, t_back = solve_bartels_stewart(A, B, C, rtrgsyl, blks=blks)
+
+print('Checking validity of solution by plugging X into equation...')
+assert check_sol(A, B, C, X)
+
+print('\nsolving times:')
+print(f'i) schur decomp : \t{t_schur:.3}')
+print(f'ii) rtrgsyl: \t\t{t_solve:.3}')
+print(f'iii) map back: \t\t{t_back:.3}')
 
 
-def print_times(t1, t2, t3):
-    print(f'Schur: {t1:.3}\nSolve: {t2:.3}\nBack: {t3:.3}')
+print('Solving Sylvester equation with Bartels Stewart and solving small systems as linear systems ...')
 
+X, t_schur, t_solve, t_back = solve_bartels_stewart(A, B, C, rtrgsyl, blks=blks, std_solver=solve_sylvester_linear)
+assert check_sol(A, B, C, X)
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('m', help='size of matrix A', type=int, default=DEFAULT_M, nargs='?')
-    parser.add_argument('n', help='size of matrix B', type=int, default=DEFAULT_N, nargs='?')
-    parser.add_argument('blks', help='max size to solve in standard way', type=int, default=DEFAULT_BLKS, nargs='?')
-    args = parser.parse_args()
-
-    m = args.m
-    n = args.n
-    blks = args.blks
-
-    A, B, C = build_matrices(m, n)
-    fun = lambda A, B, C: rtrgsyl(A, B, C, blks)
-    X, t1, t2, t3 = solve(A, B, C, fun)
-    print_times(t1, t2, t3)
-
+print('\nsolving times:')
+print(f'i) schur decomp : \t{t_schur:.3}')
+print(f'ii) rtrgsyl: \t\t{t_solve:.3}')
+print(f'iii) map back: \t\t{t_back:.3}')
