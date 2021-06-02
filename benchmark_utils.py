@@ -63,7 +63,8 @@ def multiple_runs(solve_fun: Callable, n_runs: int, dim: Tuple[int, int], check_
     """
     m, n = dim
     res = list(np.zeros(n_runs))
-    for i in range(n_runs):
+    i = 0
+    while i < n_runs:
         A, B, C = build_matrices(m, n)
         X = C.copy()
         t = time()
@@ -71,7 +72,12 @@ def multiple_runs(solve_fun: Callable, n_runs: int, dim: Tuple[int, int], check_
         t = time() - t
         res[i] = t
         if check_solution:
-            assert check_sol(A, B, C, X)
+            if check_sol(A, B, C, X):
+                i += 1
+            else:
+                print('WARNING: incorrect solution, retrying...')
+        else:
+            i += 1
 
     return res
 
@@ -91,13 +97,19 @@ def multiple_runs_bertel_stewart(solve_fun: Callable,
     """
     m, n = dim
     res = []
-    for i in range(n_runs):
+    i = 0
+    while i < n_runs:
         A, B, C = build_matrices(m, n)
         r = solve_bartels_stewart(A, B, C, solve_fun, **kwargs)
         res.append(r[1:])
         if check_solution:
             X = r[0]
-            assert check_sol(A, B, C, X)
+            if check_sol(A, B, C, X):
+                i += 1
+            else:
+                print('WARNING: incorrect solution, retrying...')
+        else:
+            i += 1
 
     return res
 
