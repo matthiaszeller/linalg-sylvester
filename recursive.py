@@ -9,7 +9,7 @@ from utils import gemm, solve_sylvester_scipy
 
 
 def split_matrix(M: np.ndarray):
-    """Find the splitting point which halves the matrix quasi upper-triangular M,
+    """Find the splitting point which halves the quasi upper-triangular matrix M,
     without cutting 2x2 diagonal blocks.
 
     :param M: upper quasi-triangular matrix M of dimension nxn, n > 2
