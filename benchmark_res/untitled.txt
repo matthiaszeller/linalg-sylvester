@@ -1,9 +1,0 @@
-#transform the base case to tensor structure
-def trsyct(A,B,C,uplo):
-    M,N = A.shape[0],B.shape[0]
-    Z = np.kron(np.eye(N),A)-np.kron(B.T,np.eye(M))
-    x = np.linalg.solve(Z,C.flatten('F'))
-    return x.T.reshape((M,N),order='F')
-    
-    
-    
