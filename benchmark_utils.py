@@ -35,7 +35,7 @@ def benchmark(solve_fun: Callable,
     # If the variable that varies is for multiple_runs, it will automatically understand it,
     # otherwise it passes the variable to solve_fun
     for value in values:
-        r = get_nruns(value[0] if variable == 'dim' else kwargs['n'])
+        r = get_nruns(value[0] if variable == 'dim' else kwargs['dim'][0])
         print(f'{variable}={value} {r} runs')
         run_config = kwargs.copy()
         run_config[variable] = value
