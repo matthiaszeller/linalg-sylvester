@@ -3,7 +3,7 @@ Utility functions to perform benchmarks.
 """
 
 from time import time
-from typing import Dict, Tuple, Callable, Iterable, Any
+from typing import Dict, Tuple, Callable, Iterable, Any, Union
 
 import numpy as np
 
@@ -14,31 +14,42 @@ def benchmark(solve_fun: Callable,
               vary_param: Tuple[str, Iterable],
               log_context: Dict[str, Any] = None,
               check_solution: bool = True,
-              n_runs: int = 5,
-              bertel_stewart: bool = False,
+              n_runs: Union[int, Tuple[int, int]] = 5,
+              bartel_stewart: bool = False,
               **kwargs):
+    """Interface function for benchmarking.
+    :param n_runs: fixed if int. Provide boundaries (nruns_min, nruns_max) to vary nruns in function of matrix size
+    """
     if log_context is None:
         log_context = dict()
+    if isinstance(n_runs, int):
+        get_nruns = lambda _: n_runs
+    else:
+        if vary_param[0] != 'dim':
+            raise ValueError
+        nmin, nmax = min(e[0] for e in vary_param[1]), max(e[0] for e in vary_param[1])
+        get_nruns = lambda n: compute_nruns(nmin, max(n_runs), nmax, min(n_runs), n)
 
     variable, values = vary_param
     results = []
     # If the variable that varies is for multiple_runs, it will automatically understand it,
     # otherwise it passes the variable to solve_fun
     for value in values:
-        print(f'{variable}={value}')
+        r = get_nruns(value[0] if variable == 'dim' else kwargs['n'])
+        print(f'{variable}={value} {r} runs')
         run_config = kwargs.copy()
         run_config[variable] = value
-        if bertel_stewart:
+        if bartel_stewart:
             times = multiple_runs_bertel_stewart(
                 solve_fun=solve_fun,
-                n_runs=n_runs,
+                n_runs=r,
                 check_solution=check_solution,
                 **run_config
             )
         else:
             times = multiple_runs(
                 solve_fun=solve_fun,
-                n_runs=n_runs,
+                n_runs=r,
                 check_solution=check_solution,
                 **run_config
             )
@@ -49,6 +60,15 @@ def benchmark(solve_fun: Callable,
         results.append(run_config)
 
     return results
+
+
+def compute_nruns(nmin: int, nruns: int, nmax: int, nruns2: int, n: int):
+    """Compute the number of runs given the matrix size n."""
+    nmin, nmax, n = np.log([nmin, nmax, n])
+    slope = (nruns2 - nruns) / (nmax - nmin)
+    r = (n - nmin) * slope + nruns
+    r = np.clip(r, nruns2, nruns)
+    return int(r)
 
 
 def multiple_runs(solve_fun: Callable, n_runs: int, dim: Tuple[int, int], check_solution: bool = True, **kwargs):
