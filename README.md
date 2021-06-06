@@ -24,6 +24,14 @@ and scipy's solver
   
 * [4-Benchmark-scalability.ipynb](4-Benchmark-scalability.ipynb): explore scalability of `rtrgsyl` by varying number of threads
 
+## Quick test
+
+Run the `script.py` file to perform a quick test of the solver:
+
+```shell
+python3 script.py
+```
+
 ## Project structure
 
 ### Algorithm implementation
@@ -39,3 +47,9 @@ the solution back to the original coordinate system.
 
 The benchmarks are performed in notebooks, via the functions in `bechmark_utils.py`.
 
+### Unit tests
+
+Unit tests are available in:
+
+* `test_split_matrix.py`
+* `test_rtrgsyl.py`
