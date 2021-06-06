@@ -29,8 +29,27 @@ and scipy's solver
 Run the `script.py` file to perform a quick test of the solver, and show the timings of the three phases of 
 Bartel-Stewart for `rtrgsyl` (with scipy's solver) vs a linear system solver:
 
-```shell
-python3 script.py
+```
+$ python3 script.py
+Created random matrices with shapes:
+(200, 200), (200, 200), (200, 200)
+
+Solving Sylvester equation with Bartels Stewart and rtrgsyl ...
+Checking validity of solution by plugging X into equation...
+solution is correct
+
+solving times:
+i) schur decomp : 	0.0662
+ii) rtrgsyl: 		0.0213
+iii) map back: 		0.000246
+
+Solving Sylvester equation with Bartels Stewart and solving small systems as linear systems ...
+solution is correct
+
+solving times:
+i) schur decomp : 	0.0647
+ii) rtrgsyl: 		2.6
+iii) map back: 		0.000271
 ```
 
 
