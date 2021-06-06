@@ -4,12 +4,6 @@ This is especially convenient to run in the console: all useful functions are al
 in case you want to do some quick tests.
 """
 
-
-from time import time
-
-import numpy as np
-from scipy.linalg import schur
-from typing import Tuple, Callable
 from recursive import rtrgsyl
 from utils import build_matrices, solve_bartels_stewart, check_sol, solve_sylvester_linear
 
@@ -40,6 +34,7 @@ print('\nSolving Sylvester equation with Bartels Stewart and solving small syste
 A, B, C = build_matrices(m, n)
 X, t_schur, t_solve, t_back = solve_bartels_stewart(A, B, C, rtrgsyl, blks=blks, std_solver=solve_sylvester_linear)
 assert check_sol(A, B, C, X)
+print('solution is correct')
 
 print('\nsolving times:')
 print(f'i) schur decomp : \t{t_schur:.3}')

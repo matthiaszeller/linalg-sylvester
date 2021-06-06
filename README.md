@@ -26,11 +26,13 @@ and scipy's solver
 
 ## Quick test
 
-Run the `script.py` file to perform a quick test of the solver:
+Run the `script.py` file to perform a quick test of the solver, and show the timings of the three phases of 
+Bartel-Stewart for `rtrgsyl` (with scipy's solver) vs a linear system solver:
 
 ```shell
 python3 script.py
 ```
+
 
 ## Project structure
 
