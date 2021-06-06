@@ -34,22 +34,22 @@ $ python3 script.py
 Created random matrices with shapes:
 (200, 200), (200, 200), (200, 200)
 
-Solving Sylvester equation with Bartels Stewart and rtrgsyl ...
+Solving Sylvester equation with rtrgsyl and scipy's solver ...
 Checking validity of solution by plugging X into equation...
-solution is correct
+Solution is correct
 
-solving times:
-i) schur decomp : 	0.0662
-ii) rtrgsyl: 		0.0213
-iii) map back: 		0.000246
+Solving Times:
+i) schur decomp : 	0.0797
+ii) rtrgsyl: 		0.0163
+iii) map back: 		0.00024
 
-Solving Sylvester equation with Bartels Stewart and solving small systems as linear systems ...
-solution is correct
+Solving Sylvester equation with rtrgsyl and linear system solver ...
+Solution is correct
 
-solving times:
-i) schur decomp : 	0.0647
-ii) rtrgsyl: 		2.6
-iii) map back: 		0.000271
+Solving Times:
+i) schur decomp : 	0.0522
+ii) rtrgsyl: 		2.33
+iii) map back: 		0.000273
 ```
 
 

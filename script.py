@@ -15,28 +15,28 @@ A, B, C = mx
 
 print(f'Created random matrices with shapes:\n{", ".join(str(M.shape) for M in mx)}')
 
-print('\nSolving Sylvester equation with Bartels Stewart and rtrgsyl ...')
+print("\nSolving Sylvester equation with rtrgsyl and scipy's solver ...")
 
 X, t_schur, t_solve, t_back = solve_bartels_stewart(A, B, C, rtrgsyl, blks=blks)
 
 print('Checking validity of solution by plugging X into equation...')
 assert check_sol(A, B, C, X)
-print('solution is correct')
+print('Solution is correct')
 
-print('\nsolving times:')
+print('\nSolving Times:')
 print(f'i) schur decomp : \t{t_schur:.3}')
 print(f'ii) rtrgsyl: \t\t{t_solve:.3}')
 print(f'iii) map back: \t\t{t_back:.3}')
 
 
-print('\nSolving Sylvester equation with Bartels Stewart and solving small systems as linear systems ...')
+print('\nSolving Sylvester equation with rtrgsyl and linear system solver ...')
 
 A, B, C = build_matrices(m, n)
 X, t_schur, t_solve, t_back = solve_bartels_stewart(A, B, C, rtrgsyl, blks=blks, std_solver=solve_sylvester_linear)
 assert check_sol(A, B, C, X)
-print('solution is correct')
+print('Solution is correct')
 
-print('\nsolving times:')
+print('\nSolving Times:')
 print(f'i) schur decomp : \t{t_schur:.3}')
 print(f'ii) rtrgsyl: \t\t{t_solve:.3}')
 print(f'iii) map back: \t\t{t_back:.3}')
