@@ -21,5 +21,5 @@ blks = 50
 benchmark(
     solve_fun=solve_sylvester_scipy,
     vary_param=('dim', [(100, 100)]),
-    bertel_stewart=True
+    bartel_stewart=True
 )
