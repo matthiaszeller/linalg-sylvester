@@ -27,8 +27,21 @@ and scipy's solver
 ## Quick test
 
 Run the `script.py` file to perform a quick test of the solver, and show the timings of the three phases of 
-Bartel-Stewart for `rtrgsyl` (with scipy's solver) vs a linear system solver:
+Bartel-Stewart for `rtrgsyl` (with scipy's solver) vs a linear system solver. It basically runs the following code:
+```python
+from recursive import rtrgsyl
+from utils import build_matrices, solve_bartels_stewart, check_sol, solve_sylvester_scipy
 
+m, n = 200, 200
+blks = 64
+
+A, B, C = build_matrices(m, n)
+
+X, t_schur, t_solve, t_back = solve_bartels_stewart(A, B, C, rtrgsyl, blks=blks, std_solver=solve_sylvester_scipy)
+assert check_sol(A, B, C, X)
+```
+
+Here is an example output:
 ```
 $ python3 script.py
 Created random matrices with shapes:
