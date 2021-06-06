@@ -24,6 +24,16 @@ and scipy's solver
   
 * [4-Benchmark-scalability.ipynb](4-Benchmark-scalability.ipynb): explore scalability of `rtrgsyl` by varying number of threads
 
+## Requirements
+
+Only `numpy` and `scipy` packages need to be installed in order to run the python code, which you can install with:
+```shell
+$ pip install numpy scipy
+```
+
+However, running the notebooks requires another software (e.g. Jupyter Lab, Jupyter Notebook or any IDE supporting 
+`.ipynb` files).
+
 ## Quick test
 
 Run the `script.py` file to perform a quick test of the solver, and show the timings of the three phases of 
