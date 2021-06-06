@@ -12,7 +12,7 @@ The solver of the triangular system is based on the paper [Recursive blocked alg
 
 This repository stores the code used for a project in a Computational Linear Algebra course ([MATH-453](https://edu.epfl.ch/coursebook/en/computational-linear-algebra-MATH-453)).
 
-The performance benchmark is performed in notebooks, results are presented in the `report.pdf`:
+The performance benchmark is performed in notebooks, results are presented in the [report.pdf](report.pdf):
 
 * [1-Benchmark-intro.ipynb](1-Benchmark-intro.ipynb): compares solving times of scipy's solver with a linear system solver,
 show time decomposition for the three phases of Bartel-Stewart algorithm
